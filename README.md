@@ -28,7 +28,7 @@ There's a (work-in-progress, currently Mitsubishi Electric only) database of dev
 
 ## Installation
 
-You can install pycoolmasternet-async from [PyPI](https://pypi.org/project/pycoolmasternet-async/):
+You can install pycoolmasternet-async from [PyPI](https://pypi.org/project/pycoolmasternet-ng/):
 
     pip3 install pycoolmasternet-ng
 
