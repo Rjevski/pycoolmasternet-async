@@ -1,4 +1,5 @@
 import asyncio
+import logging
 from typing import List, Optional, Union
 
 from .constants import PROMPT
@@ -9,6 +10,8 @@ from .exceptions import (
     RequirementNotSatisfied,
 )
 from .structures import UID
+
+logger = logging.getLogger(__name__)
 
 
 class BaseTransport:
@@ -94,10 +97,27 @@ class TCPTransport(NetworkTransportMixin, CharTransportBase):
         try:
             await reader.readuntil(PROMPT)
 
-            writer.write((command + "\n").encode("utf-8"))
-            response_bytes = await reader.readuntil(b"\r\n" + PROMPT)
+            # the following is a workaround for a bug where the device will randomly
+            # skip lines and instead replace them with `...Missing data...`
+            # it is not a Python, asyncio or OS quirk - it is actually transmitted
+            # on the wire and I have packet captures of it
 
-            response = response_bytes.decode("utf-8")
+            # TODO: ask CoolAutomation about this
+
+            successful = False
+
+            while not successful:
+                writer.write((command + "\n").encode("utf-8"))
+                response_bytes = await reader.readuntil(b"\r\n" + PROMPT)
+                response = response_bytes.decode("utf-8")
+
+                if "...Missing data..." in response:
+                    logger.warning("Got missing data, retrying - command %s, response %s", command, response)
+
+                    await asyncio.sleep(1)
+                else:
+                    successful = True
+
             return self._parse_response(response.split("\r\n")[:-1])
         finally:
             writer.close()
