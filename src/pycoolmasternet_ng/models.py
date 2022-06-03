@@ -6,6 +6,7 @@ from .constants import (
     CM_FAN_MODE_MAP,
     CM_LOUVER_POSITION_STATE_MAP,
     CM_MODE_MAP,
+    CM_PROPS_FAN_MODE_MAP,
     CM_PROPS_MODE_MAP,
     FanMode,
     LineType,
@@ -379,7 +380,7 @@ class Device:
             return list(FanMode)
 
         modes = (s.strip() for s in self.properties["Fspeeds"].split() if s.strip())
-        modes = list(CM_FAN_MODE_FSPEED_ARG_MAP[m] for m in modes if m in CM_FAN_MODE_FSPEED_ARG_MAP)
+        modes = list(CM_PROPS_FAN_MODE_MAP[m] for m in modes if m in CM_PROPS_FAN_MODE_MAP)
 
         return modes
 

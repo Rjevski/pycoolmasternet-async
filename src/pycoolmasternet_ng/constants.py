@@ -23,9 +23,14 @@ class FanMode(Enum):
     AUTO = "Auto"
 
 
+# returned by "ls" line
 CM_FAN_MODE_MAP = {fan_mode.value: fan_mode for fan_mode in FanMode}
 
+# FanMode to "fspeed" argument map
 CM_FAN_MODE_FSPEED_ARG_MAP = {fan_mode: fan_mode.value[0].lower() for fan_mode in FanMode}
+
+# "properties" fan mode identifiers to FanMode
+CM_PROPS_FAN_MODE_MAP = {fan_mode.value[0].lower(): fan_mode for fan_mode in FanMode}
 
 CM_PROPS_MODE_MAP = {mode.value[0].lower(): mode for mode in Mode}
 
