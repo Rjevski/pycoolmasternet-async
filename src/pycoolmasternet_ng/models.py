@@ -34,7 +34,16 @@ class Gateway:
         await c.refresh()
         return c
 
+    @property
+    def serial_number(self):
+        return self._settings.get("S/N")
+
+    @property
+    def version(self):
+        return self._settings.get("Version")
+
     async def refresh(self):
+        await self.refresh_settings()
         await self.refresh_props()
         await self.refresh_lines()
         await self.refresh_devices()
@@ -73,6 +82,14 @@ class Gateway:
 
             self._properties[UID.from_string(props.pop("UID"))] = props
 
+    async def refresh_lines(self):
+        line_results = await self.transport.command("line")
+
+        self._lines = self._parse_lines_result(line_results)
+
+    async def refresh_settings(self):
+        self._settings = await self.get_settings()
+
     async def get_settings(self) -> Dict[str, str]:
         set_results = await self.transport.command("set")
 
@@ -93,11 +110,6 @@ class Gateway:
             results[key.strip()] = value.strip()
 
         return results
-
-    async def refresh_lines(self):
-        line_results = await self.transport.command("line")
-
-        self._lines = self._parse_lines_result(line_results)
 
     @staticmethod
     def _parse_lines_result(line_results):
@@ -140,7 +152,7 @@ class Gateway:
         return await self.transport.plug_command(plug_uid, " ".join(args))
 
     def __str__(self):
-        return self.transport
+        return f"S/N: {self.serial_number} @ " + str(self.transport)
 
 
 class Device:
@@ -334,7 +346,7 @@ class Device:
         ranges = self.temperature_ranges
 
         if ranges:
-            return ranges[self.mode]
+            return ranges.get(self.mode)
 
     @property
     def temperature_ranges(self):

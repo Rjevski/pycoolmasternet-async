@@ -103,6 +103,9 @@ class TCPTransport(NetworkTransportMixin, CharTransportBase):
             writer.close()
             await writer.wait_closed()
 
+    def __str__(self):
+        return f"TCP/IP {self.host}:{self.port}"
+
 
 class RESTTransport(NetworkTransportMixin, BaseTransport):
     """
@@ -178,3 +181,6 @@ class SerialTransport(CharTransportBase):
         finally:
             writer.close()
             await writer.wait_closed()
+
+    def __str__(self):
+        return f"Serial {self.url} @ {self._baud_rate}"
